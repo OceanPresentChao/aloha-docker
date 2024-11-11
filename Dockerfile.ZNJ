@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # 使用 Bash 作为默认 shell
 SHELL ["/bin/bash", "-c"]
 
-# 更新 apt 源并安装基础工具. 
+# 更新 apt 源并安装基础工具. 安装miniconda
 RUN sudo sed -i "s@http://.*archive.ubuntu.com@https://mirrors.sustech.edu.cn@g" /etc/apt/sources.list \
   && sudo sed -i "s@http://.*security.ubuntu.com@https://mirrors.sustech.edu.cn@g" /etc/apt/sources.list \
   && apt-get update \
@@ -22,7 +22,6 @@ RUN sudo sed -i "s@http://.*archive.ubuntu.com@https://mirrors.sustech.edu.cn@g"
   ros-noetic-usb-cam \
   ros-noetic-cv-bridge \
   && rm -rf /var/lib/apt/lists/* \
-  ## 安装miniconda
   && mkdir -p ~/miniconda3 \
   && wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh \
   && bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 \
@@ -30,7 +29,7 @@ RUN sudo sed -i "s@http://.*archive.ubuntu.com@https://mirrors.sustech.edu.cn@g"
   && source ~/miniconda3/bin/activate \
   && conda init bash
 
-# 安装 Interbotix 依赖 
+# 安装 Interbotix 依赖 克隆 ALOHA 项目并配置 ROS 环境
 RUN curl 'https://raw.githubusercontent.com/Interbotix/interbotix_ros_manipulators/main/interbotix_ros_xsarms/install/amd64/xsarm_amd64_install.sh' > xsarm_amd64_install.sh \
   && chmod +x xsarm_amd64_install.sh \
   && echo "keyboard-configuration keyboard-configuration/layout select us" | debconf-set-selections \
@@ -39,7 +38,6 @@ RUN curl 'https://raw.githubusercontent.com/Interbotix/interbotix_ros_manipulato
   && rm xsarm_amd64_install.sh \
   && mkdir -p ~/interbotix_ws/src \
   && cd ~/interbotix_ws/src \
-  # 克隆 ALOHA 项目并配置 ROS 环境
   && git clone https://github.com/OceanPresentChao/aloha-ZNJ.git \
   && sh -c 'echo "deb https://mirrors.sustech.edu.cn/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' \
   && curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add - \
