@@ -156,7 +156,7 @@ If no error message is showing up, the computer should be successfully connected
 **Notice**: Before running the commands below, be sure to place all 4 robots in their sleep positions, and open master robot's gripper. 
 All robots will rise to a height that is easy for teleoperation.
 
-PS: All terminals are created in your conatiner! You can run `docker exec <container id> /bin/bash` to create new terminal of your container
+PS: All terminals are created in your container! You can run `docker exec <container id> /bin/bash` to create new terminal of your container
 
     # ROS terminal
     conda deactivate
@@ -177,4 +177,4 @@ The teleoperation will start when the master side gripper is closed.
 
 ## Scripts
 
-There are some scripts usually used in aloha environment in `scripts`. You can run `docker cp $file <container id>:$file` to add the file into your container and run the script
+There are some scripts usually used in aloha environment in `scripts`. You can run `docker cp $file-host <container id>:$file-container` to add the file into your container and run the script. Or you can add `COPY $file-host $file-container` to `Dockerfile`
