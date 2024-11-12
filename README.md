@@ -174,3 +174,7 @@ PS: All terminals are created in your conatiner! You can run `docker exec <conta
     python3 one_side_teleop.py left
 
 The teleoperation will start when the master side gripper is closed.
+
+## Scripts
+
+There are some scripts usually used in aloha environment in `scripts`. You can run `docker cp $file <container id>:$file` to add the file into your container and run the script

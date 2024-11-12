@@ -1,11 +1,13 @@
 # 使用 ROS Noetic desktop 作为基础镜像
-FROM osrf/ros:noetic-desktop-full
+FROM osrf/ros:noetic-desktop-full AS base
 
 # 设置非交互式安装模式，避免交互式提示
 ENV DEBIAN_FRONTEND=noninteractive
 
 # 使用 Bash 作为默认 shell
 SHELL ["/bin/bash", "-c"]
+
+FROM base AS stage1
 
 # 更新 apt 源并安装基础工具. 安装miniconda
 RUN sudo sed -i "s@http://.*archive.ubuntu.com@https://mirrors.sustech.edu.cn@g" /etc/apt/sources.list \
@@ -29,6 +31,8 @@ RUN sudo sed -i "s@http://.*archive.ubuntu.com@https://mirrors.sustech.edu.cn@g"
     && source ~/miniconda3/bin/activate \
     && conda init bash
 
+FROM stage1 AS stage2
+
 # 安装 Interbotix 依赖 克隆 ALOHA 项目并配置 ROS 环境
 RUN curl 'https://raw.githubusercontent.com/Interbotix/interbotix_ros_manipulators/main/interbotix_ros_xsarms/install/amd64/xsarm_amd64_install.sh' > xsarm_amd64_install.sh \
     && chmod +x xsarm_amd64_install.sh \
@@ -45,6 +49,8 @@ RUN curl 'https://raw.githubusercontent.com/Interbotix/interbotix_ros_manipulato
     && source ~/interbotix_ws/devel/setup.sh \
     && cd ~/interbotix_ws && catkin_make \
     && sed -i '/def publish_positions/,/def /{s/self\.T_sb = mr\.FKinSpace(self\.robot_des\.M, self\.robot_des\.Slist, self\.joint_commands)/self.T_sb = None/}' ~/interbotix_ws/src/interbotix_ros_toolboxes/interbotix_xs_toolbox/interbotix_xs_modules/src/interbotix_xs_modules/arm.py
+
+FROM stage2 AS stage3
 
 # 设置 conda 环境路径
 ENV PATH=~/miniconda3/bin:$PATH
@@ -76,7 +82,7 @@ RUN conda create -y -n aloha python=3.8.10 \
     modern-robotics
 
 # 设置工作目录
-WORKDIR /root
+WORKDIR /root/interbotix_ws/src/aloha
 
 # 设置启动命令
 CMD ["bash"]
