@@ -1,0 +1,15 @@
+# Your ALOHA Image should be built upon `Dockerfile.ZNJ` or `Dockerfile.original`
+FROM <Your_ALOHA_Image>
+
+SHELL ["/bin/bash", "-c"]
+
+RUN cd /root/interbotix_ws/src/aloha \
+  && git clone https://github.com/tonyzhaozh/act.git \
+  && source activate base && conda activate aloha && cd ./act/detr && pip install . \
+  && cd .. && rm ./constants.py && cp ../aloha_scripts/constants.py ./constants.py \
+  && sed -i "50i\import pathlib\nXML_DIR = str(pathlib.Path(__file__).parent.resolve()) + '/assets/'" ./constants.py \
+  && sed -i "10i\import sys\ncur_dir = os.path.dirname(__file__)\naloha_dir = os.path.join(cur_dir, '..')\nscript_dir = os.path.join(aloha_dir, './aloha_scripts')\nsys.path.append(aloha_dir)\nsys.path.append(script_dir)" ./imitate_episodes.py
+
+WORKDIR /root/interbotix_ws/src/aloha
+
+CMD ["bash"]
